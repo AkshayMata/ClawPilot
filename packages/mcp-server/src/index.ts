@@ -27,11 +27,19 @@ async function isServerHealthy(): Promise<boolean> {
 }
 
 function resolveServerEntry(): string | undefined {
-  // Try compiled dist first, then source (via tsx)
+  // 1. Monorepo layout: sibling packages/server/
   const distPath = resolve(__dirname, "..", "..", "server", "dist", "index.js");
   if (existsSync(distPath)) return distPath;
   const srcPath = resolve(__dirname, "..", "..", "server", "src", "index.ts");
   if (existsSync(srcPath)) return srcPath;
+
+  // 2. npm-installed: @clawpilot/server in node_modules
+  try {
+    return require.resolve("@clawpilot/server");
+  } catch {
+    // not installed
+  }
+
   return undefined;
 }
 

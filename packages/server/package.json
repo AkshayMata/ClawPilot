@@ -1,8 +1,13 @@
 {
   "name": "@clawpilot/server",
   "version": "0.1.0",
-  "private": true,
+  "description": "ClawPilot HTTP server — bridges Teams webhooks with Copilot agent sessions",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
   "scripts": {
     "build": "npx tsc -b",
     "clean": "rimraf dist",
@@ -20,5 +25,9 @@
     "@types/supertest": "^7.2.0",
     "@types/uuid": "^10.0.0",
     "supertest": "^7.2.2"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
 }

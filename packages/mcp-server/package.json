@@ -18,6 +18,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@clawpilot/server": "^0.1.0",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "zod": "^3.23.0"
   },
