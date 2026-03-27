@@ -195,7 +195,7 @@ async function setupMcpJson(): Promise<void> {
         clawpilot: {
           type: "stdio",
           command: "npx",
-          args: ["@clawpilot/mcp-server"],
+          args: ["@akshaymata/clawpilot"],
           env: {
             CLAWPILOT_SERVER_URL: "http://localhost:3978",
           },

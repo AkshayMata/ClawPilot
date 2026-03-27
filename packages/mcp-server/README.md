@@ -1,4 +1,4 @@
-# @clawpilot/mcp-server
+# @akshaymata/clawpilot
 
 MCP server that bridges GitHub Copilot agent sessions with Microsoft Teams.
 
@@ -42,7 +42,7 @@ Add the ClawPilot MCP server to any VS Code workspace:
     "clawpilot": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@clawpilot/mcp-server"],
+      "args": ["@akshaymata/clawpilot"],
       "env": {
         "CLAWPILOT_SERVER_URL": "http://localhost:3978"
       }

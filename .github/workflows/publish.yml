@@ -30,17 +30,7 @@ jobs:
       - name: Test
         run: npx vitest run
 
-      - name: Publish @clawpilot/shared
-        run: npm publish --workspace packages/shared --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @clawpilot/server
-        run: npm publish --workspace packages/server --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @clawpilot/mcp-server
+      - name: Publish @akshaymata/clawpilot
         run: npm publish --workspace packages/mcp-server --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

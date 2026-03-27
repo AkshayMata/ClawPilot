@@ -1,7 +1,6 @@
 {
   "name": "@clawpilot/server",
-  "version": "0.1.0",
-  "description": "ClawPilot HTTP server — bridges Teams webhooks with Copilot agent sessions",
+  "version": "0.1.0",  "private": true,  "description": "ClawPilot HTTP server — bridges Teams webhooks with Copilot agent sessions",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [

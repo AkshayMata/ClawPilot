@@ -140,7 +140,7 @@ Create `.vscode/mcp.json` in your other repo:
     "clawpilot": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@clawpilot/mcp-server"],
+      "args": ["@akshaymata/clawpilot"],
       "env": {
         "CLAWPILOT_SERVER_URL": "http://localhost:3978"
       }
@@ -233,7 +233,7 @@ npm run test:coverage # Coverage report
 ## Roadmap
 
 - [ ] Message threading (single thread per agent session)
-- [ ] npm publish for `@clawpilot/mcp-server`
+- [ ] npm publish for `@akshaymata/clawpilot`
 - [ ] Rich file diff views in response UI
 - [ ] Multi-tenant support
 

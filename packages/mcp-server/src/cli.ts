@@ -16,7 +16,13 @@ switch (command) {
     break;
 
   case "serve":
-    require("@clawpilot/server");
+    // In monorepo: resolved via workspace link. After npm install: not available.
+    try {
+      require("@clawpilot/server");
+    } catch {
+      console.error("Run 'npm start' from the ClawPilot repo to start the server.");
+      process.exit(1);
+    }
     break;
 
   case undefined:
@@ -37,7 +43,7 @@ Usage:
   clawpilot --help    Show this help
 
 Quick start:
-  npm install -g @clawpilot/mcp-server
+  npm install -g @akshaymata/clawpilot
   clawpilot init
 `);
     break;

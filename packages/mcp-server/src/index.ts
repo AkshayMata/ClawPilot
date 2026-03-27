@@ -36,6 +36,7 @@ function resolveServerEntry(): string | undefined {
   // 2. npm-installed: @clawpilot/server in node_modules
   try {
     return require.resolve("@clawpilot/server");
+    // Note: only works in monorepo context where @clawpilot/server is a workspace link
   } catch {
     // not installed
   }
