@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "clawpilot": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["packages/mcp-server/dist/index.js"],
+      "env": {
+        "CLAWPILOT_SERVER_URL": "http://localhost:3978"
+      }
+    }
+  }
+}
