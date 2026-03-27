@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import express from "express";
 import request from "supertest";
+import { SessionSource } from "@clawpilot/shared";
 import { createApiRouter, type RoutesDeps } from "./api.js";
 import { MessageQueue } from "../messageQueue.js";
 import { ReplyInbox } from "../replyInbox.js";
@@ -324,7 +325,7 @@ describe("API Routes", () => {
 
     it("returns sessions after creation", async () => {
       const sessions = new SessionManager();
-      sessions.getOrCreate("s1", "vscode", "Label");
+      sessions.getOrCreate("s1", SessionSource.VSCode, "Label");
       const { app } = buildApp({ sessions });
 
       const res = await request(app).get("/api/sessions");

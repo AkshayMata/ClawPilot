@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import express from "express";
 import request from "supertest";
+import { SessionSource, SessionStatus } from "@clawpilot/shared";
 import {
   createRespondRouter,
   type RespondRoutesDeps,
@@ -136,8 +137,8 @@ describe("Respond Routes", () => {
     it("updates session status to active after submit", async () => {
       const queue = new MessageQueue();
       const sessions = new SessionManager();
-      sessions.getOrCreate("s1", "vscode");
-      sessions.updateStatus("s1", "waiting_for_input");
+      sessions.getOrCreate("s1", SessionSource.VSCode);
+      sessions.updateStatus("s1", SessionStatus.WaitingForInput);
       queue.addPending({
         correlationId: "c1",
         sessionId: "s1",

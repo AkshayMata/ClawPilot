@@ -47,8 +47,10 @@ describe("notifyAndWait", () => {
     expect(result.timedOut).toBe(false);
     // Verify zombie kill was called
     const deleteCall = mockFetch.mock.calls.find(
-      ([url, opts]: [string, { method?: string }]) =>
-        url.includes("/api/replies/pollers") && opts?.method === "DELETE"
+      (call) => {
+        const [url, opts] = call as [string, { method?: string }];
+        return url.includes("/api/replies/pollers") && opts?.method === "DELETE";
+      }
     );
     expect(deleteCall).toBeDefined();
   });
@@ -153,8 +155,10 @@ describe("notifyAndWait", () => {
 
     // No DELETE call should have been made
     const deleteCall = mockFetch.mock.calls.find(
-      ([url, opts]: [string, { method?: string }]) =>
-        url.includes("/api/replies/pollers") && opts?.method === "DELETE"
+      (call) => {
+        const [url, opts] = call as [string, { method?: string }];
+        return url.includes("/api/replies/pollers") && opts?.method === "DELETE";
+      }
     );
     expect(deleteCall).toBeUndefined();
   });
