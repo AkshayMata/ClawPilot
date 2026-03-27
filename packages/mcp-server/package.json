@@ -5,7 +5,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "clawpilot-mcp": "./dist/index.js"
+    "clawpilot-mcp": "./dist/index.js",
+    "clawpilot-init": "./dist/init.js"
   },
   "files": [
     "dist/**/*.js",

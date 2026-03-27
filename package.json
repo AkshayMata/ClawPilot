@@ -11,6 +11,7 @@
     "clean": "npm run clean --workspaces",
     "start": "npm run start -w packages/server",
     "dev": "npm run dev -w packages/server",
+    "init": "node packages/mcp-server/dist/init.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
