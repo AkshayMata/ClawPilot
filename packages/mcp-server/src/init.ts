@@ -53,9 +53,9 @@ function info(msg: string) {
 }
 
 // ── Resolve paths ────────────────────────────────────────────
-function findRepoRoot(): string {
-  // Walk up from this script to find package.json with name "clawpilot"
-  let dir = resolve(__dirname, "..");
+function findRepoRoot(): string | undefined {
+  // Walk up from CWD to find a monorepo checkout with name "clawpilot"
+  let dir = process.cwd();
   for (let i = 0; i < 5; i++) {
     const pkg = join(dir, "package.json");
     if (existsSync(pkg)) {
@@ -66,21 +66,32 @@ function findRepoRoot(): string {
     }
     dir = resolve(dir, "..");
   }
-  // Fallback: assume CWD is the repo root
-  return process.cwd();
+  return undefined;
+}
+
+/** Are we running from a cloned repo, or from a global npm install? */
+function isMonorepo(): boolean {
+  return findRepoRoot() !== undefined;
 }
 
 // ── Step 1: .env ─────────────────────────────────────────────
-async function setupEnv(repoRoot: string): Promise<void> {
-  const envPath = join(repoRoot, ".env");
+async function setupEnv(): Promise<string> {
+  const repoRoot = findRepoRoot();
+  const envDir = repoRoot ?? process.cwd();
+  const envPath = join(envDir, ".env");
 
   console.log(`\n${BOLD}Step 1: Server Configuration (.env)${RESET}\n`);
+
+  if (!repoRoot) {
+    info("Not inside a ClawPilot repo clone — .env will be created in the current directory.");
+    info("The ClawPilot server will need this .env to run.\n");
+  }
 
   if (existsSync(envPath)) {
     const overwrite = await confirm(".env already exists. Overwrite?", false);
     if (!overwrite) {
       info("Keeping existing .env");
-      return;
+      return envDir;
     }
   }
 
@@ -133,10 +144,11 @@ OUTGOING_WEBHOOK_SECRET=${webhookSecret}
 
   writeFileSync(envPath, envContent, "utf-8");
   success(`Created ${envPath}`);
+  return envDir;
 }
 
 // ── Step 2: .vscode/mcp.json ─────────────────────────────────
-async function setupMcpJson(repoRoot: string): Promise<void> {
+async function setupMcpJson(): Promise<void> {
   console.log(`\n${BOLD}Step 2: MCP Server Configuration${RESET}\n`);
 
   const addMcp = await confirm("Add ClawPilot MCP server to a workspace?");
@@ -159,20 +171,38 @@ async function setupMcpJson(repoRoot: string): Promise<void> {
     }
   }
 
-  const serverDistPath = join(repoRoot, "packages", "mcp-server", "dist", "index.js");
+  // Prefer local repo path if in a monorepo, otherwise use npx
+  const repoRoot = findRepoRoot();
+  let mcpContent: object;
 
-  const mcpContent = {
-    servers: {
-      clawpilot: {
-        type: "stdio",
-        command: "node",
-        args: [serverDistPath.replace(/\\/g, "/")],
-        env: {
-          CLAWPILOT_SERVER_URL: "http://localhost:3978",
+  if (repoRoot) {
+    const serverDistPath = join(repoRoot, "packages", "mcp-server", "dist", "index.js");
+    mcpContent = {
+      servers: {
+        clawpilot: {
+          type: "stdio",
+          command: "node",
+          args: [serverDistPath.replace(/\\/g, "/")],
+          env: {
+            CLAWPILOT_SERVER_URL: "http://localhost:3978",
+          },
         },
       },
-    },
-  };
+    };
+  } else {
+    mcpContent = {
+      servers: {
+        clawpilot: {
+          type: "stdio",
+          command: "npx",
+          args: ["@clawpilot/mcp-server"],
+          env: {
+            CLAWPILOT_SERVER_URL: "http://localhost:3978",
+          },
+        },
+      },
+    };
+  }
 
   mkdirSync(vscodeDir, { recursive: true });
   writeFileSync(mcpPath, JSON.stringify(mcpContent, null, 2) + "\n", "utf-8");
@@ -180,27 +210,34 @@ async function setupMcpJson(repoRoot: string): Promise<void> {
 }
 
 // ── Step 3: Summary ──────────────────────────────────────────
-function printSummary(repoRoot: string): void {
+function printSummary(envDir: string): void {
+  const repoRoot = findRepoRoot();
+
+  const startCmd = repoRoot
+    ? `  ${DIM}cd ${repoRoot}${RESET}\n     ${DIM}npm start${RESET}`
+    : `  ${DIM}clawpilot serve${RESET}`;
+
+  const buildStep = repoRoot
+    ? `  1. ${BOLD}Build${RESET} (if you haven't already):
+     ${DIM}cd ${repoRoot}${RESET}
+     ${DIM}npm install && npm run build${RESET}\n\n`
+    : "";
+
   console.log(`
 ${BOLD}${GREEN}Setup Complete!${RESET}
 
 ${BOLD}Next steps:${RESET}
 
-  1. ${BOLD}Build${RESET} (if you haven't already):
-     ${DIM}cd ${repoRoot}${RESET}
-     ${DIM}npm install && npm run build${RESET}
-
-  2. ${BOLD}Start the server${RESET}:
-     ${DIM}cd ${repoRoot}${RESET}
-     ${DIM}npm start${RESET}
+${buildStep}  ${repoRoot ? "2" : "1"}. ${BOLD}Start the server${RESET}:
+${startCmd}
 
      The server will print your public URL (via devtunnel).
      Use that URL as the ${BOLD}Callback URL${RESET} for the Teams outgoing webhook.
 
-  3. ${BOLD}Reload VS Code${RESET} in your workspace:
+  ${repoRoot ? "3" : "2"}. ${BOLD}Reload VS Code${RESET} in your workspace:
      ${DIM}Ctrl+Shift+P → "Developer: Reload Window"${RESET}
 
-     Copilot will auto-detect the MCP server. All 5 tools + auto-start are ready.
+     Copilot will auto-detect the MCP server. All tools + auto-start are ready.
 `);
 }
 
@@ -209,11 +246,15 @@ async function main() {
   banner();
 
   const repoRoot = findRepoRoot();
-  info(`ClawPilot repo: ${repoRoot}`);
+  if (repoRoot) {
+    info(`ClawPilot repo detected: ${repoRoot}`);
+  } else {
+    info("Running from global install (no repo clone detected)");
+  }
 
-  await setupEnv(repoRoot);
-  await setupMcpJson(repoRoot);
-  printSummary(repoRoot);
+  const envDir = await setupEnv();
+  await setupMcpJson();
+  printSummary(envDir);
 
   rl.close();
 }
